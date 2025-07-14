@@ -1,0 +1,117 @@
+repositories:
+  - name: bitnami
+    url: https://mirror.yandex.ru/helm/charts.bitnami.com
+  - name: ingress-nginx
+    url: https://kubernetes.github.io/ingress-nginx
+  - name: jetstack
+    url: https://charts.jetstack.io
+  - name: pelican-s3-backupper
+    url: git+https://github.com/TourmalineCore/pelican-s3-backupper.git?ref=master 
+  - name: pelican-db-backupper
+    url: git+https://github.com/TourmalineCore/pelican-db-backupper.git?ref=master  
+
+environments:
+  prod:
+    values:
+      - environments/{{ .Environment.Name }}/values.yaml.gotmpl
+
+releases:
+  - name: ingress-nginx
+    labels:
+      app: ingress-nginx
+    wait: true
+    chart: ingress-nginx/ingress-nginx
+    # update ingress-nginx version to 1.12.1 for fix CVE-2025-1098
+    # https://www.opennet.ru/opennews/art.shtml?num=62946
+    version: 4.12.1
+    values:
+      - values-ingress-nginx.yaml.gotmpl
+
+  - name: cert-manager
+    wait: true
+    chart: jetstack/cert-manager
+    version: 1.14.5
+    needs: 
+      - ingress-nginx
+    values:
+      - values-cert-manager.yaml.gotmpl
+    # deploy custom resource using hooks feature of helmfile since there is nothing like extraDeploy for this chart
+    hooks:
+      - events: ["postsync"]
+        showlogs: true
+        command: "kubectl"
+        args:
+          - "apply"
+          - "-f"
+          - "./cert-manager-cluster-issuer.yaml"
+          - "--context"
+          - "{{`{{.Environment.KubeContext}}`}}"
+
+  - name: postgresql
+    labels:
+      app: postgresql
+    wait: true
+    chart: bitnami/postgresql
+    version: 12.2.7
+    values:
+      - values-postgre.yaml.gotmpl
+
+  - name: pelican-cms
+    labels:
+      app: pelican-cms
+    wait: true
+    chart: bitnami/nginx
+    # after 15.3.5 our docker file or setup can no longer start, need to investigate what is wrong for the newer versions
+    version: 15.3.5
+    # it won't work anyway until ingress controller is created
+    # thus we wait for it to be ready first
+    needs: 
+      - ingress-nginx
+      - postgresql
+    values:
+      # https://helmfile.readthedocs.io/en/latest/#loading-remote-environment-values-files
+      - git::https://github.com/TourmalineCore/pelican-cms.git@/ci/values.yaml?ref=master
+      - values.yaml.gotmpl
+      - values-cms.yaml.gotmpl
+      
+  - name: pelican-ui
+    labels:
+      app: pelican-ui
+    wait: true
+    chart: bitnami/nginx
+    # after 15.3.5 our docker file or setup can no longer start, need to investigate what is wrong for the newer versions
+    version: 15.3.5
+    # it won't work anyway until ingress controller is created
+    # thus we wait for it to be ready first
+    needs: 
+      - ingress-nginx
+      - pelican-cms
+    values:
+      # https://helmfile.readthedocs.io/en/latest/#loading-remote-environment-values-files
+      - git::https://github.com/TourmalineCore/pelican-ui.git@/ci/values.yaml?ref=master
+      - values.yaml.gotmpl
+      - values-ui.yaml.gotmpl
+
+  - name: pelican-s3-backupper
+    labels:
+      app: pelican-s3-backupper
+    wait: true
+    chart: pelican-s3-backupper/pelican-s3-backupper
+    needs: 
+      - pelican-cms
+    values:
+      # https://helmfile.readthedocs.io/en/latest/#loading-remote-environment-values-files
+      - git::https://github.com/TourmalineCore/pelican-s3-backupper.git@/ci/values.yaml?ref=master
+      - values-pelican-s3-backupper.yaml.gotmpl
+
+  - name: pelican-db-backupper
+    labels:
+      app: pelican-db-backupper
+    wait: true
+    chart: pelican-db-backupper/pelican-db-backupper
+    needs: 
+      - pelican-cms
+    values:
+      # https://helmfile.readthedocs.io/en/latest/#loading-remote-environment-values-files
+      - git::https://github.com/TourmalineCore/pelican-db-backupper.git@/ci/values.yaml?ref=master
+      - values-pelican-db-backupper.yaml.gotmpl

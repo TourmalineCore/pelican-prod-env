@@ -1,0 +1,25 @@
+# without it cert-manager won't be able to deploy
+installCRDs: true
+
+resources:
+  limits:
+    memory: 100Mi
+  requests:
+    cpu: 40m
+    memory: 100Mi
+
+cainjector:
+  resources:
+    limits:
+      memory: 50Mi
+    requests:
+      cpu: 10m
+      memory: 50Mi
+
+webhook:
+  resources:
+    limits:
+      memory: 50Mi
+    requests:
+      cpu: 10m
+      memory: 50Mi

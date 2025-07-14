@@ -1,0 +1,22 @@
+# here you can find the readme of the config of the used version of nginx-ingress chart https://github.com/kubernetes/ingress-nginx/blob/helm-chart-4.10.1/charts/ingress-nginx/README.md
+# here you can find the default values.yaml that we partially override in this file https://github.com/kubernetes/ingress-nginx/blob/helm-chart-4.10.1/charts/ingress-nginx/values.yaml
+
+controller:
+  service:
+    type: NodePort
+    ports:
+      # -- Port the external HTTP listener is published with.
+      # we need to open port 80 so that letsencrypt can issue a valid certificate, it probably uses it for a callback
+      # if only port 443 is open and 80 is closed we end up with a fake self-signed certificate
+      http: "80"
+      https: "443"
+    nodePorts:
+      http: "30080"
+      https: "30443"
+    # https://dev.to/u2633/how-to-add-the-whitelist-for-your-ingress-nginx-controller-of-k8s-1a02
+    # this is needed to allow to whitelist IP-addresses for cms by keeping original client reqest IP
+    # it has differences from Cluster policy. however, for this single node cluster this looks acceptable
+    externalTrafficPolicy: "Local"
+  config:
+    # https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/nginx-configuration/configmap.md#proxy-body-size
+    proxy-body-size: "100m"

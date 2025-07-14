@@ -1,0 +1,43 @@
+# —— START —— #
+# —— DO NOT CHANGE MANUALLY —— #
+# —— UPDATED IN WORKFLOWS —— #
+image:
+  tag: "sha-0f495b2506f3292160b588b952206737c5ed0f22"
+# —— END —— #
+
+ingress:
+  hostname: "{{ .Values.PELICAN_UI_HOSTNAME }}"
+
+replicaCount: 2
+
+updateStrategy:
+  rollingUpdate:
+    maxUnavailable: 1
+    maxSurge: 1
+
+# Here you can read more about container probes https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+readinessProbe:
+  enabled: true
+  path: /
+  initialDelaySeconds: 15
+  periodSeconds: 30
+
+livenessProbe:
+  enabled: true
+  path: /
+  initialDelaySeconds: 45
+  periodSeconds: 60
+
+extraConfigMapEnvVars:
+  API_URL: "http://pelican-cms-nginx/api"
+  PREVIEW_SECRET: "{{ .Values.PELICAN_PREVIEW_SECRET }}"
+
+  NEXT_PUBLIC_METRICS_ENABLED: "{{ .Values.PELICAN_NEXT_PUBLIC_METRICS_ENABLED }}"
+  
+  CSP_ENABLED: "{{ .Values.PELICAN_CSP_ENABLED }}"
+  CSP_SCRIPT_SRC_URLS: "{{ .Values.PELICAN_CSP_SCRIPT_SRC_URLS }}"
+  CSP_IMG_SRC_URLS: "{{ .Values.PELICAN_CSP_IMG_SRC_URLS }}"
+  CSP_FONT_SRC_URLS: "{{ .Values.PELICAN_CSP_FONT_SRC_URLS }}"
+  CSP_MEDIA_SRC_URLS: "{{ .Values.PELICAN_CSP_MEDIA_SRC_URLS }}"
+  CSP_FRAME_SRC_URLS: "{{ .Values.PELICAN_CSP_FRAME_SRC_URLS }}"
+  CSP_CONNECT_SRC_URLS: "{{ .Values.PELICAN_CSP_CONNECT_SRC_URLS }}"

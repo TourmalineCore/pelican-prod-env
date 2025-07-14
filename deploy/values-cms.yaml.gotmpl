@@ -1,0 +1,78 @@
+# —— START —— #
+# —— DO NOT CHANGE MANUALLY —— #
+# —— UPDATED IN WORKFLOWS —— #
+image:
+  tag: "sha-51c82269e467cac751bf8ffa8bc189397c213e7c"
+# —— END —— #
+
+ingress:
+  hostname: {{ .Values.PELICAN_CMS_HOSTNAME }}
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: letsencrypt
+    # allow access only from our office public static IP-address
+    nginx.ingress.kubernetes.io/whitelist-source-range: "{{ .Values.PELICAN_CMS_ALLOWED_IP_ADDRESSES_WHITELIST }}"
+
+replicaCount: 2
+
+updateStrategy:
+  rollingUpdate:
+    maxUnavailable: 1
+    maxSurge: 1
+
+readinessProbe:
+  enabled: true
+  path: /cms
+  initialDelaySeconds: 15
+  periodSeconds: 30
+
+livenessProbe:
+  enabled: true
+  path: /cms
+  initialDelaySeconds: 45
+  periodSeconds: 60
+
+extraConfigMapEnvVars:
+  HOST: "0.0.0.0"
+  PORT: "1337"
+  APP_KEYS: "{{ .Values.PELICAN_APP_KEYS }}"
+  API_TOKEN_SALT: "{{ .Values.PELICAN_API_TOKEN_SALT }}"
+  ADMIN_JWT_SECRET: "{{ .Values.PELICAN_ADMIN_JWT_SECRET }}"
+  TRANSFER_TOKEN_SALT: "{{ .Values.PELICAN_TRANSFER_TOKEN_SALT }}"
+  DATABASE_HOST: "{{ .Values.PELICAN_DATABASE_HOST }}"
+  DATABASE_PORT: "{{ .Values.PELICAN_DATABASE_PORT }}"
+  DATABASE_NAME: "{{ .Values.PELICAN_DATABASE_NAME }}"
+  DATABASE_USERNAME: "{{ .Values.PELICAN_DATABASE_USERNAME }}"
+  DATABASE_PASSWORD: "{{ .Values.PELICAN_DATABASE_PASSWORD }}"
+  JWT_SECRET: "{{ .Values.PELICAN_JWT_SECRET }}"
+  PREVIEW_SECRET: "{{ .Values.PELICAN_PREVIEW_SECRET }}"
+
+  # this perfectly explains why this is needed https://github.com/strapi/strapi/issues/13889#issuecomment-1516194973
+  # is this even needed?
+  SERVER_URL: "{{ .Values.PELICAN_CMS_BASE_EXTERNAL_URL }}/cms"
+  FRONTEND_URL: "{{ .Values.PELICAN_UI_BASE_EXTERNAL_URL }}"
+
+  AWS_ACCESS_KEY_ID: "{{ .Values.PELICAN_AWS_ACCESS_KEY_ID }}"
+  AWS_ACCESS_SECRET_KEY: "{{ .Values.PELICAN_AWS_ACCESS_SECRET_KEY }}"
+  AWS_REGION: "{{ .Values.PELICAN_AWS_REGION}}"
+
+  # if else condition is needed to handle the situation when a subfolder exists
+  {{- if .Values.PELICAN_AWS_SUBFOLDER_NAME }}
+  AWS_ENDPOINT: "{{ .Values.PELICAN_AWS_ENDPOINT }}/{{ .Values.PELICAN_AWS_BUCKET }}"
+  AWS_PUBLIC_ENDPOINT: "{{ .Values.PELICAN_AWS_ENDPOINT }}/{{ .Values.PELICAN_AWS_BUCKET }}/{{ .Values.PELICAN_AWS_SUBFOLDER_NAME}}"
+  AWS_BUCKET: "{{ .Values.PELICAN_AWS_SUBFOLDER_NAME }}"
+  {{- else }}
+  AWS_ENDPOINT: "{{ .Values.PELICAN_AWS_ENDPOINT }}"
+  AWS_PUBLIC_ENDPOINT: "{{ .Values.PELICAN_AWS_ENDPOINT }}/{{ .Values.PELICAN_AWS_BUCKET }}"
+  AWS_BUCKET: "{{ .Values.PELICAN_AWS_BUCKET }}"
+  {{- end }}
+
+  NODE_ENV: "production"
+  INIT_ADMIN: "true"
+  INIT_ADMIN_USERNAME: "{{ .Values.PELICAN_INIT_ADMIN_USERNAME }}"
+  INIT_ADMIN_PASSWORD: "{{ .Values.PELICAN_INIT_ADMIN_PASSWORD }}"
+  INIT_ADMIN_FIRSTNAME: "{{ .Values.PELICAN_INIT_ADMIN_FIRSTNAME }}"
+  INIT_ADMIN_LASTNAME: "{{ .Values.PELICAN_INIT_ADMIN_LASTNAME }}"
+  INIT_ADMIN_EMAIL: "{{ .Values.PELICAN_INIT_ADMIN_EMAIL }}"

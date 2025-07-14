@@ -1,0 +1,7 @@
+global:
+  postgresql:
+    auth:
+      postgresPassword: "{{ .Values.PELICAN_DATABASE_PASSWORD }}"
+      username: "{{ .Values.PELICAN_DATABASE_USERNAME }}"
+      password: "{{ .Values.PELICAN_DATABASE_PASSWORD }}"
+      database: "{{ .Values.PELICAN_DATABASE_NAME }}"
