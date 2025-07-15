@@ -9,7 +9,9 @@ repositories:
     url: git+https://github.com/TourmalineCore/pelican-s3-backupper.git?ref=master 
   - name: pelican-db-backupper
     url: git+https://github.com/TourmalineCore/pelican-db-backupper.git?ref=master  
-
+  - name: pelican-env-synchronizer
+    url: git+https://github.com/TourmalineCore/pelican-env-synchronizer.git?ref=master
+    
 environments:
   prod:
     values:
@@ -115,3 +117,14 @@ releases:
       # https://helmfile.readthedocs.io/en/latest/#loading-remote-environment-values-files
       - git::https://github.com/TourmalineCore/pelican-db-backupper.git@/ci/values.yaml?ref=master
       - values-pelican-db-backupper.yaml.gotmpl
+
+  - name: pelican-env-synchronizer
+    labels:
+      app: pelican-env-synchronizer
+    wait: true
+    chart: pelican-env-synchronizer/pelican-env-synchronizer
+    values:
+      # https://helmfile.readthedocs.io/en/latest/#loading-remote-environment-values-files
+      - git::https://github.com/TourmalineCore/pelican-env-synchronizer.git@/ci/values.yaml?ref=master
+      - values.yaml.gotmpl
+      - values-pelican-env-synchronizer.yaml.gotmpl
