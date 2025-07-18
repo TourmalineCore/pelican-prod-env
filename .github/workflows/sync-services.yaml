@@ -1,0 +1,63 @@
+name: Sync services
+on: 
+  repository_dispatch:
+
+jobs:
+  Sync-services:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout Prod Env  
+        uses: actions/checkout@v3 
+        with:
+          token: ${{ secrets.PELICAN_ENV_SYNC_TRIGGER_TOKEN }}
+
+      - name: Set branch name
+        run: 
+          echo "BRANCH_NAME=feature/sync-image-tag-${{ github.event.client_payload.repository }}-$(date +'%FT%H-%M')-short-sha-${{ github.event.client_payload.short_sha }}" >> $GITHUB_ENV
+      
+      - name: Set path to values file
+        run:
+          # Example of PATH_TO_VALUES: deploy/values-ui.yaml.gotmpl 
+          echo "PATH_TO_VALUES=${{ github.event.client_payload.path_to_values }}" >> $GITHUB_ENV
+
+        # We tried to use yq to change the image tag, but in the values files for helmfile we have non-yaml code that yq can`t parse or ignore
+        # so for that reason we use Stream EDitor which can find needeed string using regular expressions and change it to a new value
+        # The -i flag is needed to write new image tag directly to values file
+      - name: Write new image tag to values
+        run: |
+          sed -i "0,/tag:.*/s//tag: \"${{ github.event.client_payload.image_tag }}\"/" $PATH_TO_VALUES
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name github-actions[bot]
+          # 41898282 is id of GitHub Actions Bot that was taken from GitHub API: https://api.github.com/users/github-actions[bot]
+          git config --global user.email 41898282+github-actions[bot]@users.noreply.github.com
+
+          git checkout -b $BRANCH_NAME master
+
+          git add $PATH_TO_VALUES
+
+          git commit -m "${{ github.event.client_payload.commit_message }}"
+          
+          git push origin $BRANCH_NAME
+
+      - name: Set PR title
+        run: 'echo "PR_TITLE=sync: ${{ github.event.client_payload.repository }} image tag" >> $GITHUB_ENV' 
+        
+      - name: Create PR
+        run: gh pr create -B master -H $BRANCH_NAME --title "${{ env.PR_TITLE }}" --body "${{ github.event.client_payload.commit_message }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Enable auto-merge for PR
+        run: gh pr merge $BRANCH_NAME --auto --merge --subject "${{ env.PR_TITLE }}" --body "${{ github.event.client_payload.commit_message }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Approve PR
+        run: gh pr review $BRANCH_NAME -a
+        env:
+          GITHUB_TOKEN: ${{ secrets.PELICAN_ENV_SYNC_TRIGGER_TOKEN }}
