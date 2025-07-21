@@ -58,7 +58,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PELICAN_ENV_SYNC_TRIGGER_TOKEN }}
 
-      - name: Enable auto-merge for PR
-        run: gh pr merge $BRANCH_NAME --auto --merge --subject "${{ env.PR_TITLE }}" --body "${{ github.event.client_payload.commit_message }}"
+      - name: Merge PR
+        run: gh pr merge $BRANCH_NAME --merge --subject "${{ env.PR_TITLE }}" --body "${{ github.event.client_payload.commit_message }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
