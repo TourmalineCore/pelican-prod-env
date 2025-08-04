@@ -24,6 +24,12 @@ jobs:
           echo "PATH_TO_VALUES=${{ github.event.client_payload.path_to_values }}" >> $GITHUB_ENV
           # Example of PATH_TO_HELMFILE: deploy/helmfile.yaml
           echo "PATH_TO_HELMFILE=${{ github.event.client_payload.path_to_helmfile }}" >> $GITHUB_ENV
+          
+      # It's necessary to write commit message to file as json to correctly process double quotas
+      # -e is used to enable interpretation of the following backslash escapes (e.g \n)
+      - name: Write commit message to file
+        run: 
+          echo -e ${{ toJson(github.event.client_payload.commit_message) }} > commit_message.txt
 
         # We tried to use yq to change the image tag, but in the values files for helmfile we have non-yaml code that yq can`t parse or ignore
         # so for that reason we use Stream EDitor which can find needeed string using regular expressions and change it to a new value
@@ -49,7 +55,7 @@ jobs:
 
           git add $PATH_TO_HELMFILE
 
-          git commit -m "${{ github.event.client_payload.commit_message }}"
+          git commit -F commit_message.txt
           
           git push origin $BRANCH_NAME
 
@@ -57,7 +63,7 @@ jobs:
         run: 'echo "PR_TITLE=sync: ${{ github.event.client_payload.repository }} image tag" >> $GITHUB_ENV' 
         
       - name: Create PR
-        run: gh pr create -B master -H $BRANCH_NAME --title "${{ env.PR_TITLE }}" --body "${{ github.event.client_payload.commit_message }}"
+        run: gh pr create -B master -H $BRANCH_NAME --title "${{ env.PR_TITLE }}" -F commit_message.txt
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -68,6 +74,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PELICAN_ENV_SYNC_TRIGGER_TOKEN }}
 
       - name: Merge PR
-        run: gh pr merge $BRANCH_NAME --merge --subject "${{ env.PR_TITLE }}" --body "${{ github.event.client_payload.commit_message }}"
+        run: gh pr merge $BRANCH_NAME --merge --subject "${{ env.PR_TITLE }}" -F commit_message.txt
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
