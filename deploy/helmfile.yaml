@@ -135,3 +135,4 @@ releases:
         showlogs: true
         command: "sh"
         args: ["-c", "if [ -f /etc/environment ]; then kubectl create configmap {{ .Values.PELICAN_SYNCHRONIZER_CONFIGMAP_NAME }} --from-env-file /etc/environment --namespace {{ .Environment.Name }} --dry-run=client -o yaml | yq 'del(.data.PATH, .data.KUBECONFIG)' | sed 's/\"//g' | kubectl apply -f -; fi"]
+
