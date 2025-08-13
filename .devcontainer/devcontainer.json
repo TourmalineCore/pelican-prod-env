@@ -29,8 +29,25 @@
 	},
 	// Use this environment variable if you need to bind mount your local source code into a new container.
 	"remoteEnv": {
-		"LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}",
-		
+		"LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}"
+	},
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [],
+	// Use 'postCreateCommand' to run commands after the container is created.
+	// "postCreateCommand": "docker --version",
+	// Configure tool-specific properties.
+	// "customizations": {},
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	// this was needed for kind to be able to create the cluster https://github.com/kubernetes-sigs/kind/issues/3196
+	"remoteUser": "root",
+	// to be able to call host OS network services
+	"runArgs": [
+		"--network=host"
+	],
+	// this tells kind where to look for the default config
+	"containerEnv": {
+		"KUBECONFIG": "/workspaces/pelican-prod-env/.pelican-cluster-kubeconfig",
+
 		"PELICAN_PROD_UI_HOSTNAME": "${localEnv:PELICAN_PROD_UI_HOSTNAME}",
 		"PELICAN_PROD_UI_BASE_EXTERNAL_URL": "${localEnv:PELICAN_PROD_UI_BASE_EXTERNAL_URL}",
 		"PELICAN_PROD_CMS_HOSTNAME": "${localEnv:PELICAN_PROD_CMS_HOSTNAME}",
@@ -89,23 +106,6 @@
 		"PELICAN_PROD_SYNCHRONIZER_ENABLED": "${localEnv:PELICAN_PROD_SYNCHRONIZER_ENABLED}",   
 		"PELICAN_PROD_SYNCHRONIZER_ENV_REPOSITORY": "${localEnv:PELICAN_PROD_SYNCHRONIZER_ENV_REPOSITORY}",   
 		"PELICAN_PROD_SYNCHRONIZER_PATH_TO_HELMFILE": "${localEnv:PELICAN_PROD_SYNCHRONIZER_PATH_TO_HELMFILE}"
-	},
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
-	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "docker --version",
-	// Configure tool-specific properties.
-	// "customizations": {},
-	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-	// this was needed for kind to be able to create the cluster https://github.com/kubernetes-sigs/kind/issues/3196
-	"remoteUser": "root",
-	// to be able to call host OS network services
-	"runArgs": [
-		"--network=host"
-	],
-	// this tells kind where to look for the default config
-	"containerEnv": {
-		"KUBECONFIG": "/workspaces/pelican-prod-env/.pelican-cluster-kubeconfig"
 	},
 	// this is to prevent the k8s cluster container from pausing when closing VSCode
 	"shutdownAction": "none"
