@@ -41,13 +41,8 @@ releases:
     hooks:
       - events: ["postsync"]
         showlogs: true
-        command: "kubectl"
-        args:
-          - "apply"
-          - "-f"
-          - "./cert-manager-cluster-issuer.yaml"
-          - "--context"
-          - "{{`{{.Environment.KubeContext}}`}}"
+        command: "sh"
+        args: ["-c", "envsubst < ./cert-manager-cluster-issuer.yaml | kubectl apply -f -"]
 
   - name: postgresql
     labels:
