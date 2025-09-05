@@ -125,14 +125,19 @@ releases:
       - values.yaml.gotmpl
       - values-pelican-env-synchronizer.yaml.gotmpl
     hooks:
+      # Create namespace if doesn't exists. It's needed in reason that configmap for env-synchronizer can't be created before namespace
+      - events: ["prepare"]
+        showlogs: true
+        command: "sh"
+        args: ["-c", "if ! kubectl get namespace {{ .Environment.Name }}; then kubectl create namespace {{ .Environment.Name }}; fi"]
       # Delete configmap if already exists
       - events: ["prepare"]
         showlogs: true
         command: "sh"
-        args: ["-c", "if kubectl get configmap {{ .Values.PELICAN_SYNCHRONIZER_CONFIGMAP_NAME }} --namespace {{ .Environment.Name }} && [ -f /etc/environment ]; then kubectl delete configmap {{ .Values.PELICAN_SYNCHRONIZER_CONFIGMAP_NAME }} --namespace {{ .Environment.Name }}; fi"]
+        args: ["-c", "if kubectl get configmap {{ .Values.PELICAN_SYNCHRONIZER_CONFIGMAP_NAME }} --namespace {{ .Environment.Name }} && [ -f ../.devcontainer/devcontainer.env ]; then kubectl delete configmap {{ .Values.PELICAN_SYNCHRONIZER_CONFIGMAP_NAME }} --namespace {{ .Environment.Name }}; fi"]
       # Create configmap with env values
       - events: ["preapply"]
         showlogs: true
         command: "sh"
-        args: ["-c", "if [ -f /etc/environment ]; then kubectl create configmap {{ .Values.PELICAN_SYNCHRONIZER_CONFIGMAP_NAME }} --from-env-file /etc/environment --namespace {{ .Environment.Name }} --dry-run=client -o yaml | yq 'del(.data.PATH, .data.KUBECONFIG)' | sed 's/\"//g' | kubectl apply -f -; fi"]
+        args: ["-c", "if [ -f ../.devcontainer/devcontainer.env ]; then kubectl create configmap {{ .Values.PELICAN_SYNCHRONIZER_CONFIGMAP_NAME }} --from-env-file ../.devcontainer/devcontainer.env --namespace {{ .Environment.Name }}; fi"]
 
