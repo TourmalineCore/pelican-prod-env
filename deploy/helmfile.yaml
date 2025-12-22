@@ -97,7 +97,7 @@ releases:
       - pelican-cms
     values:
       # https://helmfile.readthedocs.io/en/latest/#loading-remote-environment-values-files
-      - git::https://github.com/TourmalineCore/pelican-ui.git@/ci/values.yaml?ref=cc051c431621f4e201efc673f738f22468f3b303
+      - git::https://github.com/TourmalineCore/pelican-ui.git@/ci/values.yaml?ref=a7dca8ffd288d10c0f6413f62414b65fe2c37293
       - values.yaml.gotmpl
       - values-ui.yaml.gotmpl
 
