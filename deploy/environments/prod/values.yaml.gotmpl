@@ -39,14 +39,14 @@ PELICAN_CMS_ALLOWED_IP_ADDRESSES_WHITELIST: "{{ requiredEnv "PELICAN_PROD_CMS_AL
 
 PELICAN_PREVIEW_SECRET: "{{ requiredEnv "PELICAN_PROD_PREVIEW_SECRET" }}"
 
-PELICAN_CSP_ENABLED="true"
-PELICAN_CSP_SCRIPT_SRC_URLS="https://mc.yandex.ru https://pos.gosuslugi.ru https://culturaltracking.ru"
-PELICAN_CSP_IMG_SRC_URLS="https://pos.gosuslugi.ru https://cdn.chelzoo.ru https://mc.yandex.ru https://culturaltracking.ru"
-PELICAN_CSP_FONT_SRC_URLS="https://cdn.chelzoo.ru"
-PELICAN_CSP_MEDIA_SRC_URLS="https://storage.yandexcloud.net"
-PELICAN_CSP_FRAME_SRC_URLS="https://pos.gosuslugi.ru https://mc.yandex.ru"
-PELICAN_CSP_CONNECT_SRC_URLS="https://cdn.chelzoo.ru https://mc.yandex.ru https://culturaltracking.ru"
-PELICAN_CSP_STYLE_SRC_URLS="https://cdn.chelzoo.ru"
+PELICAN_CSP_ENABLED: "true"
+PELICAN_CSP_SCRIPT_SRC_URLS: "https://mc.yandex.ru https://pos.gosuslugi.ru https://culturaltracking.ru"
+PELICAN_CSP_IMG_SRC_URLS: "https://pos.gosuslugi.ru https://cdn.chelzoo.ru https://mc.yandex.ru https://culturaltracking.ru"
+PELICAN_CSP_FONT_SRC_URLS: "https://cdn.chelzoo.ru"
+PELICAN_CSP_MEDIA_SRC_URLS: "https://storage.yandexcloud.net"
+PELICAN_CSP_FRAME_SRC_URLS: "https://pos.gosuslugi.ru https://mc.yandex.ru"
+PELICAN_CSP_CONNECT_SRC_URLS: "https://cdn.chelzoo.ru https://mc.yandex.ru https://culturaltracking.ru"
+PELICAN_CSP_STYLE_SRC_URLS: "https://cdn.chelzoo.ru"
 
 PELICAN_NEXT_PUBLIC_METRICS_ENABLED: "{{ requiredEnv "PELICAN_PROD_NEXT_PUBLIC_METRICS_ENABLED" }}"
 PELICAN_NEXT_PUBLIC_YANDEX_METRIKA_ID: "{{ requiredEnv "PELICAN_PROD_NEXT_PUBLIC_YANDEX_METRIKA_ID" }}"
