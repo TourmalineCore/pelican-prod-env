@@ -132,7 +132,7 @@ NEW_CMS_PASSWORD=$(devcontainer exec --workspace-folder . kubectl exec postgresq
 
 Копируем бэкап в под базы данных PostgreSQL
 ```bash
-devcontainer exec --workspace-folder . kubectl cp pelican-prod-env-db-2026-09-03T23-00-11.backup -n prod postgresql-0:tmp/pelican_db.backup
+devcontainer exec --workspace-folder . kubectl cp pelican-prod-env-db.backup -n prod postgresql-0:tmp/pelican_db.backup
 ```
 
 Завершаем активные подключения к базе данных
