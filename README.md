@@ -122,7 +122,7 @@ aws --endpoint-url https://storage.yandexcloud.net s3 sync --region ru-central1 
 ```
 
 ### Восстановление базы данных
-
+> Вручную скопируйте файл бэкапа в виртуальную машину
 Сохраняем пароль от базы данных в переменную.
 > Переменная доступна только в текущей сессии
 ```bash
@@ -132,6 +132,12 @@ POSTGRES_PASSWORD=$(devcontainer exec --workspace-folder . kubectl get secret --
 Сохраняем текущий пароль от CMS. Он будет нужен, чтобы использовать его после восстановления.
 ```bash
 NEW_CMS_PASSWORD=$(devcontainer exec --workspace-folder . kubectl exec postgresql-0 -n prod -- env PGPASSWORD=$POSTGRES_PASSWORD psql --no-align --tuples-only -U postgres -d pelican_db -c 'SELECT password FROM public.admin_users WHERE id = 1')
+```
+
+Если изменилось название бакета, то необходимо поменять его в бэкапе
+
+```bash
+sed -i "s|https://storage.yandexcloud.net/pelican-prod-media/media-assets|https://storage.yandexcloud.net/pelican-prod-g-media/media-assets|g" ./pelican-prod-env-db.backup
 ```
 
 Копируем бэкап в под базы данных PostgreSQL
