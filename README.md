@@ -71,6 +71,10 @@ nano .devcontainer/devcontainer.env
 bash install.sh
 ```
 
+Деплоим сервисы в кластер
+```bash
+devcontainer exec --workspace-folder . helmfile cache cleanup && devcontainer exec --workspace-folder . helmfile --environment prod --namespace prod -f deploy/helmfile.yaml apply --concurrency 1
+```
 ### Восстановление облачного хранилища
 
 #### Подготовка облачного хранилища
