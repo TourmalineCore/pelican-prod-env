@@ -8,7 +8,7 @@ repositories:
   - name: jetstack
     url: https://charts.jetstack.io
   - name: pelican-s3-backupper
-    url: git+https://github.com/TourmalineCore/pelican-s3-backupper.git?ref=9338eb238a0daa3fd060b9bb6c945f6a9256a98c
+    url: git+https://github.com/TourmalineCore/pelican-s3-backupper.git?ref=5420cae95cc997beeb5283e90255a3745bd03c3f
   - name: pelican-db-backupper
     url: git+https://github.com/TourmalineCore/pelican-db-backupper.git?ref=7460d187fde973e0d80d330153aecabfeb623a3c
   - name: pelican-env-synchronizer
@@ -110,7 +110,7 @@ releases:
       - pelican-cms
     values:
       # https://helmfile.readthedocs.io/en/latest/#loading-remote-environment-values-files
-      - git::https://github.com/TourmalineCore/pelican-s3-backupper.git@/ci/values.yaml?ref=9338eb238a0daa3fd060b9bb6c945f6a9256a98c
+      - git::https://github.com/TourmalineCore/pelican-s3-backupper.git@/ci/values.yaml?ref=5420cae95cc997beeb5283e90255a3745bd03c3f
       - values-pelican-s3-backupper.yaml.gotmpl
 
   - name: pelican-db-backupper
